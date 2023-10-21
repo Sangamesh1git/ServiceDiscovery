@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class DiscoveryService {
@@ -140,5 +141,27 @@ public class DiscoveryService {
     private String generateJobId() {
         // Implement job ID generation logic (e.g., using UUID)
         return UUID.randomUUID().toString();
+    }
+
+    public List<String> getDiscoveryResult(String service) {
+        if ("S3".equalsIgnoreCase(service)) {
+            // Query the database to retrieve S3 buckets
+            List<S3bucket> s3Buckets = s3BucketRepository.findAll();
+
+            // Extract and return the bucket names
+            return s3Buckets.stream()
+                    .map(S3bucket::getBucketName)
+                    .collect(Collectors.toList());
+        } else if ("EC2".equalsIgnoreCase(service)) {
+            // Query the database to retrieve EC2 instances
+            List<EC2Instance> ec2Instances = ec2InstanceRepository.findAll(); // You need to have this repository
+
+            // Extract and return the instance IDs
+            return ec2Instances.stream()
+                    .map(EC2Instance::getInstanceId)
+                    .collect(Collectors.toList());
+        } else {
+            throw new IllegalArgumentException("Service not supported: " + service);
+        }
     }
 }
